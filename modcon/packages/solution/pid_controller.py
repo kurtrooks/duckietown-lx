@@ -27,11 +27,26 @@ def PIDController(
         e_int:   current integral error (automatically becomes prev_int_y at next iteration).
     """
 
-    # TODO: these are random values, you have to implement your own PID controller in here
-    omega = np.random.uniform(-8.0, 8.0)
-    e = np.random.random()
-    e_int = np.random.random()
+    kp = 5.0
+    ki = 0.2
+    kd = 0.1
+
+    e = theta_ref - theta_hat
+    
+    e_int = prev_int + e*delta_t
+    if e_int > 2.0:
+        e_int = 2.0
+    elif e_int < -2.0
+        e_int = -2.0
+
+    e_der = (e - prev_e)/delta_t
+
+    omega = kp*e + ki*e_int + kd*e_der
+
     # Hint: print for debugging
-    # print(f"\n\nDelta time : {delta_t} \nE : {np.rad2deg(e)} \nE int : {e_int} \nPrev e : {prev_e} \nU : {u} \nTheta hat: {np.rad2deg(theta_hat)} \n")
+    #print(f"\n\nDelta time : {delta_t} \nE : {np.rad2deg(e)} \nE int : {e_int} \nPrev e : {prev_e} \nTheta hat: {np.rad2deg(theta_hat)} \n")
+    print("theta,theta_ref",theta_ref,theta_hat)
+    print("PID",kp,ki,kd)
+    print("Err",e,e_int,e_der)
     # ---
     return v_0, omega, e, e_int

@@ -38,15 +38,20 @@ def PIDController(
     ki = gains['ki']
 
     # ------------- DEFINE YOUR PID FUNCTION BELOW ---------
+    y_ref_bias = 0.07 # bias duckiebot towards center of lane
+    y_ref += y_ref_bias
+
     e = y_ref - y_hat 
     e_der = (e - prev_e_y)/delta_t
     e_int = prev_int_y + e*delta_t
 
-    if e_int > 2.0:
-        e_int = 2.0
-    elif e_int < -2.0:
-        e_int = -2.0
+    windup_limit = 0.5
+    if e_int > windup_limit:
+        e_int = windup_limit
+    elif e_int < -windup_limit:
+        e_int = -windup_limit
 
     omega = kp*e + ki*e_int + kd*e_der
-    
+   
+    #print("Y_ref,Y,e_der",y_ref,y_hat,e_der)
     return v_0, omega, e, e_int

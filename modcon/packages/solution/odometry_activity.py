@@ -16,13 +16,7 @@ def delta_phi(ticks: int, prev_ticks: int, resolution: int) -> Tuple[float, floa
 
     delta_ticks = ticks - prev_ticks
     dphi = 2.*np.pi*float(delta_ticks)/resolution
-    
-    #ticks = prev_ticks + int(np.random.uniform(0, 10))
-    #dphi = np.random.random()
-    # ---
-
     return dphi, ticks
-
 
 def pose_estimation(
     R: float,
@@ -63,4 +57,5 @@ def pose_estimation(
     x_curr = x_prev + d_dist*np.cos(theta_curr) 
     y_curr = y_prev + d_dist*np.sin(theta_curr)
     # ---
+   
     return x_curr, y_curr, theta_curr

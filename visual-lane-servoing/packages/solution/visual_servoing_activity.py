@@ -13,9 +13,13 @@ def get_steer_matrix_left_lane_markings(shape: Tuple[int, int]) -> np.ndarray:
                             using the masked left lane markings (numpy.ndarray)
     """
 
-    steer_matrix_left = np.repeat(np.tile(np.linspace(0,1, shape[1]), (shape[0], 1))[:, :, np.newaxis], 3, axis=2)
 
-    return steer_matrix_left
+    steer_matrix_left = np.ones((shape[0],shape[1]))
+
+    for y in range(0,shape[1]):
+        steer_matrix_left[:,y] =  (y/shape[1])
+
+    return -steer_matrix_left
 
 
 def get_steer_matrix_right_lane_markings(shape: Tuple[int, int]) -> np.ndarray:
@@ -28,8 +32,11 @@ def get_steer_matrix_right_lane_markings(shape: Tuple[int, int]) -> np.ndarray:
                              using the masked right lane markings (numpy.ndarray)
     """
 
-    steer_matrix_right = np.repeat(np.tile(np.linspace(1,0, shape[1]), (shape[0], 1))[:, :, np.newaxis], 3, axis=2)
+    steer_matrix_right = np.zeros((shape[0],shape[1]))
     
+    for y in range(0,shape[1]):
+        steer_matrix_right[:,y] = 1- y/shape[1]
+
     return steer_matrix_right
 
 
@@ -55,7 +62,6 @@ def detect_lane_markings(image: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
     Gdir = cv2.phase(np.array(sobelx, np.float32), np.array(sobely, dtype=np.float32), angleInDegrees=True)
  
     """ Masks """
-
     # Gradient
     mask_sobelx_pos = (sobelx > 0)
     mask_sobelx_neg = (sobelx < 0)
@@ -73,12 +79,12 @@ def detect_lane_markings(image: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
     mask_right[:,0:int(np.floor(width/2))] = 0
   
     # Mag Threshold
-    threshold = 60
+    threshold = 50
     mask_mag = (Gmag > threshold)
 
     # Color Mask
-    white_lower_hsv = np.array([0,17,118])  
-    white_upper_hsv = np.array([179,47,255]) 
+    white_lower_hsv = np.array([0,0,100])  
+    white_upper_hsv = np.array([179,60,255]) 
     yellow_lower_hsv = np.array([18, 96, 115])
     yellow_upper_hsv = np.array([40,255,255])
 
@@ -86,17 +92,8 @@ def detect_lane_markings(image: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
     mask_white = cv2.inRange(imghsv, white_lower_hsv, white_upper_hsv)
     mask_yellow = cv2.inRange(imghsv, yellow_lower_hsv, yellow_upper_hsv)
    
-    """    
-    print(mask_ground.shape)
-    print(mask_left.shape)
-    print(mask_mag.shape)
-    print(mask_sobelx_neg.shape)
-    print(mask_sobely_neg.shape)
-    print(mask_yellow.shape)
-    """
-
     # Output
-    mask_left_edge = mask_ground * mask_left * mask_mag * mask_sobelx_neg * mask_sobely_neg * mask_yellow
-    mask_right_edge = mask_ground * mask_right * mask_mag * mask_sobelx_pos * mask_sobely_neg * mask_white
+    mask_left_edge= mask_left * mask_mag * mask_sobelx_neg * mask_sobely_neg *mask_yellow #* mask_ground
+    mask_right_edge= mask_right * mask_mag * mask_sobelx_pos * mask_sobely_neg *mask_white #* mask_ground
 
     return mask_left_edge, mask_right_edge

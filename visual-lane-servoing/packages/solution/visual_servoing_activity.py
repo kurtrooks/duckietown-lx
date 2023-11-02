@@ -37,7 +37,7 @@ def get_steer_matrix_right_lane_markings(shape: Tuple[int, int]) -> np.ndarray:
     for y in range(0,shape[1]):
         steer_matrix_right[:,y] = 1- y/shape[1]
 
-    return steer_matrix_right
+    return steer_matrix_right*0.8
 
 
 def detect_lane_markings(image: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
@@ -70,7 +70,7 @@ def detect_lane_markings(image: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
 
     # Ground mask 
     mask_ground = np.ones(img.shape, dtype=np.uint8)
-    mask_ground[:int(width/2)-50,:] = 0
+    mask_ground[:int(width/2),:] = 0
 
     # Left / right mask
     mask_left = np.ones(sobelx.shape)
@@ -93,7 +93,7 @@ def detect_lane_markings(image: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
     mask_yellow = cv2.inRange(imghsv, yellow_lower_hsv, yellow_upper_hsv)
    
     # Output
-    mask_left_edge= mask_left * mask_mag * mask_sobelx_neg * mask_sobely_neg *mask_yellow #* mask_ground
-    mask_right_edge= mask_right * mask_mag * mask_sobelx_pos * mask_sobely_neg *mask_white #* mask_ground
+    mask_left_edge= mask_left * mask_mag * mask_sobelx_neg * mask_sobely_neg *mask_yellow * mask_ground
+    mask_right_edge= mask_right * mask_mag * mask_sobelx_pos * mask_sobely_neg *mask_white * mask_ground
 
     return mask_left_edge, mask_right_edge
